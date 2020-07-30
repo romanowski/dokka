@@ -655,6 +655,9 @@ open class HtmlRenderer(
                             id = "logo"
                         }
                         div {
+                            id = "paneSearch"
+                        }
+                        div {
                             id = "sideMenu"
                         }
                     }
