@@ -3,7 +3,7 @@ import {Select, List } from '@jetbrains/ring-ui';
 import { DokkaFuzzyFilterComponent } from '../search/dokkaFuzzyFilter';
 import { IWindow, Option } from '../search/types';
 import './navigationPaneSearch.scss';
-import ClearIcon from 'react-svg-loader!./clear.svg';
+import ClearIcon from 'react-svg-loader!../assets/clear.svg';
 
 export const NavigationPaneSearch = () => {
     const defaultWidth = 300

@@ -138,7 +138,7 @@ open class DefaultPageCreator(
             extra = mainExtra + SimpleAttr.header("Properties")
         ) {
             link(it.name, it.dri, kind = ContentKind.Main)
-            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependentHint) {
+            sourceSetDependentHint(it.dri, it.sourceSets.toSet(), kind = ContentKind.SourceSetDependentHint, extra = PropertyContainer.empty()) { //TODO does it imply creating a field in extras that informs if the extras should be inherited?
                 contentForBrief(it)
                 +buildSignature(it)
             }
@@ -377,7 +377,6 @@ open class DefaultPageCreator(
                                             sourceSets = setOf(platform),
                                             kind = ContentKind.Comment,
                                             styles = mainStyles + ContentStyle.RowTitle,
-                                            extra = mainExtra + SymbolAnchorHint(it.name)
                                         ) {
                                             if (it.address != null) link(
                                                 it.name,

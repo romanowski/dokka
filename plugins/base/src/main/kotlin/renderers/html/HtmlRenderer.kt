@@ -97,7 +97,6 @@ open class HtmlRenderer(
                 span("breakable-word") { childrenCallback() }
             }
             node.hasStyle(TextStyle.Span) -> span() { childrenCallback() }
-            node.anchorLabel != null -> buildAnchor(node.anchor, node.anchorLabel!!){ childrenCallback() }
             node.dci.kind == ContentKind.Symbol -> div("symbol $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.BriefComment -> div("brief $additionalClasses") { childrenCallback() }
             node.dci.kind == ContentKind.Cover -> div("cover $additionalClasses") {
@@ -106,6 +105,7 @@ open class HtmlRenderer(
             }
             node.hasStyle(TextStyle.Paragraph) -> p(additionalClasses) { childrenCallback() }
             node.hasStyle(TextStyle.Block) -> div(additionalClasses) { childrenCallback() }
+            node.isAnchorable -> buildAnchor(node.anchor, node.anchorLabel!!){ childrenCallback() }
             else -> childrenCallback()
         }
     }
@@ -387,7 +387,9 @@ open class HtmlRenderer(
                                 .forEach {
                                     span {
                                         it.build(this, pageContext, sourceSetRestriction)
-                                        buildAnchorCopyButton(it.anchor)
+                                        if(it.isAnchorable){
+                                            buildAnchorCopyButton(it.anchor)
+                                        }
                                     }
                                     if (ContentKind.shouldBePlatformTagged(node.dci.kind) && (node.sourceSets.size == 1))
                                         createPlatformTags(node)
@@ -724,6 +726,9 @@ private val PageNode.isNavigable: Boolean
     get() = this !is RendererSpecificPage || strategy != RenderingStrategy.DoNothing
 
 fun PropertyContainer<ContentNode>.extraHtmlAttributes() = allOfType<SimpleAttr>()
+
+val ContentNode.isAnchorable: Boolean
+    get() = anchorLabel != null
 
 val ContentNode.anchorLabel: String?
     get() = extra[SymbolAnchorHint.SymbolAnchorHintKey]?.anchorName

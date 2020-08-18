@@ -236,7 +236,8 @@ open class PageContentBuilder(
             listOf(createText(text, kind, sourceSets, styles, extra)),
             address,
             DCI(mainDRI, kind),
-            sourceSets.toDisplaySourceSets()
+            sourceSets.toDisplaySourceSets(),
+            extra = extra
         )
 
         fun link(
@@ -269,7 +270,8 @@ open class PageContentBuilder(
                 contentFor(mainDRI, sourceSets, kind, styles, extra, block).children,
                 address,
                 DCI(mainDRI, kind),
-                sourceSets.toDisplaySourceSets()
+                sourceSets.toDisplaySourceSets(),
+                extra = extra
             )
         }
 

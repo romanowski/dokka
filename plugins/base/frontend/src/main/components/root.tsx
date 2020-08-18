@@ -18,32 +18,21 @@ const renderNavigationPane = () => {
 }
 
 const renderOnThisPage = () => {
-  const data = {
-    category: 'functions',
-    entries: [
-      {
-        dri: 'XD',
-        label: 'First'
-      },
-      {
-        dri: 'XD',
-        label: 'Second'
-      },
-      {
-        dri: 'XD',
-        label: 'Third'
-      }
-    ]
-  }
-  console.log('byClass', document.getElementsByClassName)
-  console.log('byQuery', document.querySelectorAll)
-
   setTimeout(() => {
     for(const e of document.querySelectorAll('.tabs-section-body > div[data-togglable]')){
       const category = e.getAttribute('data-togglable')
-      const element = document.createElement('div')
-      render(<PageSummary category={category} entries={data.entries}/>, element)
-      e.appendChild(element)
+      const entries = Array.from(e.querySelectorAll('a[anchor-label]')).map((element: HTMLElement) => {
+        return {
+          location: element.getAttribute('data-name'),
+          label: element.getAttribute('anchor-label'),
+          htmlElement: element
+        }
+      })
+      if(entries.length){
+        const element = document.createElement('div')
+        render(<PageSummary category={category} entries={entries}/>, element)
+        e.appendChild(element)
+      }
     }
   })
 }
