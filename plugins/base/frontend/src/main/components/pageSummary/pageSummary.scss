@@ -5,8 +5,10 @@
     border: 1px solid $grey-border;
     position: fixed;
     top: 25%;
+    max-height: 70vh;
     right: -2px;
     min-width: 250px;
+    z-index: 8;
 
     .clickable-icon {
         padding: 8px;
@@ -35,6 +37,9 @@
             width: 100%;
             padding: 0;
             margin: 1em 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            max-height: 60vh;
             li {
                 width: 100%;
                 padding: 4px 0;

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import './pageSummary.scss'
 import Arrow from 'react-svg-loader!../assets/arrow.svg';
 import _ from "lodash";
+import { SummaryElement } from "./pageSummaryEntry";
 
 type PageSummaryProps = {
-    category: string,
-    entries: PageSummaryEntry[]
+    entries: PageSummaryEntry[],
 }
 
 type PageSummaryEntry = {
@@ -14,7 +14,7 @@ type PageSummaryEntry = {
     htmlElement: HTMLElement
 }
 
-export const PageSummary: React.FC<PageSummaryProps> = ({category, entries}: PageSummaryProps) => {
+export const PageSummary: React.FC<PageSummaryProps> = ({entries}: PageSummaryProps) => {
     const [hidden, setHidden] = useState<Boolean>(false);
     const [highlighted, setHighlighted] = useState<PageSummaryEntry | null>(null);
 
@@ -29,14 +29,12 @@ export const PageSummary: React.FC<PageSummaryProps> = ({category, entries}: Pag
         return () => window.removeEventListener('scroll', onScroll)
     })
 
-    const toggleHide = () => setHidden(!hidden)
-
-    let classnames = "page-summary " + category
+    let classnames = "page-summary"
     if(hidden) classnames += " hidden"
     
     return (
-        <div className={classnames}>
-            <span className={"clickable-icon"} onClick={() => toggleHide()}><Arrow /></span>
+        <div className={classnames}>        
+            <span className={"clickable-icon"} onClick={() => setHidden(!hidden)}><Arrow /></span>
             {!hidden && 
                 <div className={"content-wrapper"}>
                     <h4>On this page:</h4>
@@ -45,18 +43,5 @@ export const PageSummary: React.FC<PageSummaryProps> = ({category, entries}: Pag
                     </ul>
                 </div>}
         </div>
-    )
-}
-
-type PageSummaryEntryProps = {
-    location: string,
-    label: string,
-    highlighted: boolean;
-}
-
-const SummaryElement: React.FC<PageSummaryEntryProps> = ({location, label, highlighted}: PageSummaryEntryProps) => {
-    let className = highlighted ? 'selected' : ''
-    return (
-        <li className={className}><a href={`#${location}`}>{label}</a></li>
     )
 }

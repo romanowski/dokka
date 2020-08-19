@@ -18,9 +18,8 @@ const renderNavigationPane = () => {
 }
 
 const renderOnThisPage = () => {
-  setTimeout(() => {
+  document.addEventListener('DOMContentLoaded', () => {
     for(const e of document.querySelectorAll('.tabs-section-body > div[data-togglable]')){
-      const category = e.getAttribute('data-togglable')
       const entries = Array.from(e.querySelectorAll('a[anchor-label]')).map((element: HTMLElement) => {
         return {
           location: element.getAttribute('data-name'),
@@ -30,7 +29,7 @@ const renderOnThisPage = () => {
       })
       if(entries.length){
         const element = document.createElement('div')
-        render(<PageSummary category={category} entries={entries}/>, element)
+        render(<PageSummary entries={entries}/>, element)
         e.appendChild(element)
       }
     }
