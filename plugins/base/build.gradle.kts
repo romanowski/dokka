@@ -18,10 +18,26 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinx_html_version")
 }
 
-task("copy_frontend", Copy::class) {
-    from(File(project(":plugins:base:frontend").projectDir, "dist/"))
+val projectDistDir = File(project(":plugins:base:frontend").projectDir, "dist/")
+
+val copyJsFiles by tasks.registering(Copy::class){
+    from(projectDistDir){
+        include("*.js")
+    }
     destinationDir = File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/scripts")
-}.dependsOn(":plugins:base:frontend:generateFrontendFiles")
+}
+
+val copyCssFiles by tasks.registering(Copy::class){
+    from(projectDistDir){
+        include("*.css")
+    }
+    destinationDir = File(sourceSets.main.get().resources.sourceDirectories.singleFile, "dokka/styles")
+}
+
+task("copy_frontend")
+    .dependsOn(":plugins:base:frontend:generateFrontendFiles")
+    .dependsOn(copyJsFiles)
+    .dependsOn(copyCssFiles)
 
 tasks {
     processResources {
