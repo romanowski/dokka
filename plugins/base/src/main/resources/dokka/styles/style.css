@@ -165,6 +165,7 @@
     min-height: 100%;
     border-right: 1px solid #DADFE6;
     flex: 0 0 auto;
+    height: 100%;
 }
 
 @media screen and (max-width: 600px) {
@@ -661,6 +662,7 @@ footer {
 
 .platform-tags {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .platform-tags > .platform-tag {
@@ -1082,7 +1084,7 @@ div.runnablesample {
         max-width: 100%;
     }
     #leftColumn {
-        position: absolute;
+        position: fixed;
         margin-left: -280px;
         transition: margin .2s ease-out;
         z-index: 4;
@@ -1118,5 +1120,11 @@ div.runnablesample {
     }
     #content {
         padding: 0 var(--mobile-horizontal-spacing-for-content);
+    }
+    #sideMenu {
+        max-height: unset;
+        height: calc(100% - 160px);
+        padding-bottom: 16px;
+        overflow: scroll;
     }
 }
