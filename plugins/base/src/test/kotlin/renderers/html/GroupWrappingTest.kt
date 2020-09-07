@@ -1,6 +1,7 @@
 package renderers.html
 
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
+import org.jetbrains.dokka.base.renderers.html.HtmlRendererFactory
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
 import renderers.*
@@ -20,7 +21,7 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
             text("c")
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
 
         renderedContent.match("abc")
     }
@@ -35,7 +36,7 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
             text("c")
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
 
         renderedContent.match(P("ab"), "c")
     }
@@ -50,7 +51,7 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
             text("c")
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
 
         renderedContent.match(Div("ab"), "c")
     }
@@ -70,7 +71,7 @@ class GroupWrappingTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
 
         renderedContent.match(Div("a", Div(Div("bc")), "d"))
     }

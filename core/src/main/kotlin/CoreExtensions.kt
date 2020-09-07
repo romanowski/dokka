@@ -1,7 +1,7 @@
 package org.jetbrains.dokka
 
 import org.jetbrains.dokka.plugability.ExtensionPoint
-import org.jetbrains.dokka.renderers.Renderer
+import org.jetbrains.dokka.renderers.RendererFactory
 import org.jetbrains.dokka.transformers.documentation.DocumentableMerger
 import org.jetbrains.dokka.transformers.documentation.DocumentableToPageTranslator
 import org.jetbrains.dokka.transformers.documentation.DocumentableTransformer
@@ -20,7 +20,7 @@ object CoreExtensions {
     val allModulePageCreator by coreExtension<PageCreator>()
     val pageTransformer by coreExtension<PageTransformer>()
     val allModulePageTransformer by coreExtension<PageTransformer>()
-    val renderer by coreExtension<Renderer>()
+    val renderer by coreExtension<RendererFactory>()
 
     private fun <T : Any> coreExtension() = object {
         operator fun provideDelegate(thisRef: CoreExtensions, property: KProperty<*>): Lazy<ExtensionPoint<T>> =

@@ -3,6 +3,7 @@ package renderers.gfm
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
+import org.jetbrains.dokka.gfm.CommonmarkRendererFactory
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
 import renderers.testPage
@@ -40,7 +41,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
             }
         }
 
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1, pl2, pl3] abc  \n   \n")
     }
 
@@ -54,7 +55,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
             }
         }
 
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1] a  \n   \n [pl2] b  \n   \n [pl3] c  \n   \n")
     }
 
@@ -68,7 +69,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
             }
         }
 
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1] ab  \n   \n [pl2] bc  \n   \n")
     }
 
@@ -82,7 +83,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
             }
         }
 
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1, pl2] ab  \n   \n")
     }
 
@@ -98,7 +99,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
             }
         }
 
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1] ab  \n  \n   \n [pl2] a  \nb  \n   \n")
     }
 
@@ -114,7 +115,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
             }
         }
 
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1, pl2] ab   \n")
     }
 
@@ -128,7 +129,7 @@ class SourceSetDependentHintTest : GfmRenderingOnlyTestBase() {
             }
         }
 
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == "//[testPage](test-page.md)\n\n [pl1, pl2] a  \n   \n [pl3] b  \n   \n")
     }
 }

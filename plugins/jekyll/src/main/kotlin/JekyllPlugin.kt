@@ -2,8 +2,10 @@ package org.jetbrains.dokka.jekyll
 
 import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.renderers.DefaultRendererFactory
 import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
+import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
 import org.jetbrains.dokka.gfm.GfmPlugin
@@ -12,6 +14,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import java.lang.StringBuilder
 
@@ -22,7 +25,7 @@ class JekyllPlugin : DokkaPlugin() {
 
     val renderer by extending {
         (CoreExtensions.renderer
-                providing { JekyllRenderer(it) }
+                providing { JekyllRendererFactory(it) }
                 override plugin<GfmPlugin>().renderer)
     }
 
@@ -37,11 +40,18 @@ class JekyllPlugin : DokkaPlugin() {
     }
 }
 
-class JekyllRenderer(
-    context: DokkaContext
-) : CommonmarkRenderer(context) {
+class JekyllRendererFactory(context: DokkaContext): DefaultRendererFactory(context) {
+    override fun createRender(locationProvider: LocationProvider, root: RootPageNode): Renderer =
+        CommonmarkRenderer(context, locationProvider, root)
 
     override val preprocessors = context.plugin<JekyllPlugin>().query { jekyllPreprocessors }
+}
+
+class JekyllRenderer(
+    context: DokkaContext,
+    locationProvider: LocationProvider,
+    root: RootPageNode
+) : CommonmarkRenderer(context, locationProvider, root) {
 
     override fun buildPage(page: ContentPage, content: (StringBuilder, ContentPage) -> Unit): String {
         val builder = StringBuilder()

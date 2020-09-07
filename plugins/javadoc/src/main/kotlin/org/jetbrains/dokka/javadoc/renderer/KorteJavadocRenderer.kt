@@ -1,30 +1,44 @@
 package org.jetbrains.dokka.javadoc.renderer
 
 import com.soywiz.korte.*
-import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
-import org.jetbrains.dokka.javadoc.pages.*
-import org.jetbrains.dokka.javadoc.renderer.JavadocContentToHtmlTranslator.Companion.buildLink
-import org.jetbrains.dokka.javadoc.toNormalized
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.OutputWriter
-import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.javadoc.JavadocPlugin
+import org.jetbrains.dokka.javadoc.location.JavadocLocationProvider
+import org.jetbrains.dokka.javadoc.pages.*
+import org.jetbrains.dokka.javadoc.renderer.JavadocContentToHtmlTranslator.Companion.buildLink
+import org.jetbrains.dokka.javadoc.toNormalized
 import org.jetbrains.dokka.links.DRI
-import org.jetbrains.dokka.pages.*
+import org.jetbrains.dokka.pages.PageNode
+import org.jetbrains.dokka.pages.RendererSpecificPage
+import org.jetbrains.dokka.pages.RenderingStrategy
+import org.jetbrains.dokka.pages.RootPageNode
 import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
+import org.jetbrains.dokka.renderers.RendererFactory
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.time.LocalDate
 
 typealias TemplateMap = Map<String, Any?>
 
-class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: DokkaContext, resourceDir: String) :
+class KorteJavadocRendererFactory(val context: DokkaContext, val resourceDir: String) : RendererFactory {
+    override fun createRenderer(root: RootPageNode): Renderer =
+        KorteJavadocRenderer(context.plugin<DokkaBase>().querySingle { outputWriter }, context, resourceDir, root)
+}
+
+class KorteJavadocRenderer(
+    private val outputWriter: OutputWriter,
+    val context: DokkaContext,
+    resourceDir: String,
+    val root: RootPageNode
+) :
     Renderer {
     private lateinit var locationProvider: JavadocLocationProvider
     private val registeredPreprocessors = context.plugin<JavadocPlugin>().query { javadocPreprocessors }
@@ -37,8 +51,9 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
         JavadocContentToTemplateMapTranslator(locationProvider, context)
     }
 
-    override fun render(root: RootPageNode) = root.let { registeredPreprocessors.fold(root) { r, t -> t.invoke(r) } }.let { newRoot ->
-        locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }.getLocationProvider(newRoot) as JavadocLocationProvider
+    override fun render() = root.let { registeredPreprocessors.fold(root) { r, t -> t.invoke(r) } }.let { newRoot ->
+        locationProvider = context.plugin<JavadocPlugin>().querySingle { locationProviderFactory }
+            .getLocationProvider(newRoot) as JavadocLocationProvider
         runBlocking(Dispatchers.IO) {
             renderPage(newRoot)
             SearchScriptsCreator(locationProvider).invoke(newRoot).forEach { renderSpecificPage(it, "") }
@@ -57,7 +72,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
     }
 
     private fun CoroutineScope.renderPage(node: PageNode, path: String = "") {
-        when(node){
+        when (node) {
             is JavadocModulePageNode -> renderModulePageNode(node)
             is JavadocPageNode -> renderJavadocPageNode(node)
             is RendererSpecificPage -> renderSpecificPage(node, path)
@@ -154,7 +169,7 @@ class KorteJavadocRenderer(private val outputWriter: OutputWriter, val context: 
                                 " implements " + it.joinToString(", ") { n ->
                                     listOfNotNull(
                                         n.packageName,
-                                        n.toLink()?.let{ buildLink(it, n.classNames.orEmpty()) } ?: n
+                                        n.toLink()?.let { buildLink(it, n.classNames.orEmpty()) } ?: n
                                     ).joinToString(".")
                                 }
                             }.orEmpty()

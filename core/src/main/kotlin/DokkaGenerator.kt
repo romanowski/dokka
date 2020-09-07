@@ -116,7 +116,7 @@ class DokkaGenerator(
         context: DokkaContext
     ) {
         val renderer = context.single(CoreExtensions.renderer)
-        renderer.render(transformedPages)
+        renderer.createRenderer(transformedPages).render()
     }
 
     fun reportAfterRendering(context: DokkaContext) {

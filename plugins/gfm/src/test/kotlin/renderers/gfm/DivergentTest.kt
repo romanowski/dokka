@@ -3,6 +3,7 @@ package renderers.gfm
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gfm.CommonmarkRenderer
+import org.jetbrains.dokka.gfm.CommonmarkRendererFactory
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.junit.jupiter.api.Test
@@ -42,7 +43,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
             }
         }
         val expect = "//[testPage](test-page.md)\n\n[js]  \nContent  \na  \n\n\n"
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == expect)
     }
 
@@ -58,7 +59,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
             }
         }
         val expect = "//[testPage](test-page.md)\n\n[js]  \nContent  \na  \n\n\n"
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == expect)
     }
 
@@ -84,7 +85,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
             }
         }
         val expect = "//[testPage](test-page.md)\n\n[js, jvm, native]  \nContent  \n[js]  \na  \n[jvm]  \nb  \n[native]  \nc  \n\n\n"
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == expect)
     }
 
@@ -110,7 +111,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
             }
         }
         val expect = "//[testPage](test-page.md)\n\n[js]  \nContent  \na  \nb  \nc  \n\n\n"
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == expect)
     }
 
@@ -146,7 +147,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
             }
         }
         val expect = "//[testPage](test-page.md)\n\n[native, js, jvm]  \nContent  \n[native]  \na  \n[js]  \nb  \n[jvm]  \nc  \n[js]  \nd  \n[native]  \ne  \n\n\n"
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == expect)
     }
 
@@ -194,7 +195,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
             }
         }
         val expect = "//[testPage](test-page.md)\n\n[native]  \nContent  \na  \nMore info  \na+  \n\n\n[js]  \nContent  \nb  \nd  \nMore info  \nbd+  \n\n\n[jvm]  \nContent  \nc  \n\n\n[native]  \nContent  \ne  \nMore info  \ne+  \n\n\n"
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == expect)
     }
 
@@ -221,7 +222,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
             }
         }
         val expect = "//[testPage](test-page.md)\n\n[native]  \nBrief description  \nab-  \nContent  \na  \nb  \n\n\n"
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == expect)
     }
 
@@ -248,7 +249,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
             }
         }
         val expect = "//[testPage](test-page.md)\n\n[native]  \nContent  \na  \nb  \nMore info  \nab+  \n\n\n"
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == expect)
     }
 
@@ -281,7 +282,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
             }
         }
         val expect = "//[testPage](test-page.md)\n\n[native]  \nBrief description  \nab-  \nContent  \na  \nb  \nMore info  \nab+  \n\n\n"
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == expect)
     }
 
@@ -314,7 +315,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
             }
         }
         val expect = "//[testPage](test-page.md)\n\n[native]  \nBrief description  \na-  \nContent  \na  \nMore info  \nab+  \n\n\n[native]  \nBrief description  \nb-  \nContent  \nb  \nMore info  \nab+  \n\n\n"
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == expect)
     }
 
@@ -365,7 +366,7 @@ class DivergentTest : GfmRenderingOnlyTestBase() {
             }
         }
         val expect = "//[testPage](test-page.md)\n\n[native]  \nContent  \na  \nMore info  \na+  \n\n\n[js, jvm]  \nContent  \n[js]  \nb  \n[jvm]  \nc  \n[js]  \nd  \nMore info  \nbd+  \n\n\n[native]  \nContent  \ne  \nMore info  \ne+  \n\n\n"
-        CommonmarkRenderer(context).render(page)
+        CommonmarkRendererFactory(context).createRenderer(page).render()
         assert(renderedContent == expect)
     }
 }

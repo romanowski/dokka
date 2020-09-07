@@ -147,7 +147,7 @@ class DokkaBase : DokkaPlugin() {
     }
 
     val htmlRenderer by extending {
-        CoreExtensions.renderer providing ::HtmlRenderer
+        CoreExtensions.renderer providing ::HtmlRendererFactory
     }
 
 

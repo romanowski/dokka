@@ -8,8 +8,10 @@ import kotlinx.html.stream.createHTML
 import org.jetbrains.dokka.DokkaSourceSetID
 import org.jetbrains.dokka.base.DokkaBase
 import org.jetbrains.dokka.base.renderers.DefaultRenderer
+import org.jetbrains.dokka.base.renderers.DefaultRendererFactory
 import org.jetbrains.dokka.base.renderers.TabSortingStrategy
 import org.jetbrains.dokka.base.renderers.isImage
+import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.model.properties.PropertyContainer
@@ -20,13 +22,25 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
 import org.jetbrains.dokka.plugability.querySingle
+import org.jetbrains.dokka.renderers.Renderer
+import org.jetbrains.dokka.renderers.RendererFactory
+import org.jetbrains.dokka.transformers.pages.PageTransformer
 import org.jetbrains.dokka.utilities.htmlEscape
 import java.io.File
 import java.net.URI
 
+class HtmlRendererFactory(context: DokkaContext): DefaultRendererFactory(context){
+    override fun createRender(locationProvider: LocationProvider, root: RootPageNode): Renderer =
+        HtmlRenderer(context, locationProvider, root)
+
+    override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
+}
+
 open class HtmlRenderer(
-    context: DokkaContext
-) : DefaultRenderer<FlowContent>(context) {
+    context: DokkaContext,
+    locationProvider: LocationProvider,
+    root: RootPageNode
+) : DefaultRenderer<FlowContent>(context, locationProvider, root) {
 
     private val sourceSetDependencyMap: Map<DokkaSourceSetID, List<DokkaSourceSetID>> =
         context.configuration.sourceSets.map { sourceSet ->
@@ -36,8 +50,6 @@ open class HtmlRenderer(
         }.toMap()
 
     private var shouldRenderSourceSetBubbles: Boolean = false
-
-    override val preprocessors = context.plugin<DokkaBase>().query { htmlPreprocessors }
 
     val searchbarDataInstaller = SearchbarDataInstaller()
 
@@ -637,9 +649,9 @@ open class HtmlRenderer(
             else -> text(textNode.text)
         }
 
-    override fun render(root: RootPageNode) {
+    override fun render() {
         shouldRenderSourceSetBubbles = shouldRenderSourceSetBubbles(root)
-        super.render(root)
+        super.render()
         runBlocking(Dispatchers.Default) {
             launch {
                 outputWriter.write("scripts/pages", "var pages = ${searchbarDataInstaller.generatePagesList()}", ".js")
@@ -660,87 +672,99 @@ open class HtmlRenderer(
 
     private fun resolveLink(link: String, page: PageNode): String = if (URI(link).isAbsolute) link else page.root(link)
 
+    protected fun HEAD.buildResources(resources: List<String>, page: PageNode) = resources.forEach {
+        when {
+            it.substringBefore('?').substringAfterLast('.') == "css" -> link(
+                rel = LinkRel.stylesheet,
+                href = resolveLink(it, page)
+            )
+            it.substringBefore('?').substringAfterLast('.') == "js" -> script(
+                type = ScriptType.textJavaScript,
+                src = resolveLink(it, page)
+            ) {
+                async = true
+            }
+            else -> unsafe { +it }
+        }
+    }
+
+    protected fun <T> T.buildLeftColumn(page: PageNode) where T : HTMLTag, T : FlowContent =
+        div {
+            id = "leftColumn"
+            div {
+                id = "logo"
+            }
+            if (page !is MultimoduleRootPage) {
+                div {
+                    id = "paneSearch"
+                }
+            }
+            div {
+                id = "sideMenu"
+            }
+        }
+
+    protected fun FlowContent.buildSearchBar(page: PageNode) {
+        div {
+            id = "searchBar"
+        }
+        script(type = ScriptType.textJavaScript, src = page.root("scripts/pages.js")) {}
+        script(type = ScriptType.textJavaScript, src = page.root("scripts/main.js")) {}
+    }
+
+    protected fun FlowContent.buildFooter(page: PageNode) =
+        div(classes = "footer") {
+            span("go-to-top-icon") {
+                a(href = "#container") {
+                    unsafe {
+                        raw(
+                            """
+                                    <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11.3337 9.66683H0.666992L6.00033 3.66683L11.3337 9.66683Z" fill="black"/>
+                                        <path d="M0.666992 0.333496H11.3337V1.66683H0.666992V0.333496Z" fill="black"/>
+                                    </svg>
+                                """.trimIndent()
+                        )
+                    }
+                }
+            }
+            span { text("© 2020 Copyright") }
+            span("pull-right") {
+                span { text("Sponsored and developed by dokka") }
+                a(href = "https://github.com/Kotlin/dokka") {
+                    span(classes = "padded-icon") {
+                        unsafe {
+                            raw(
+                                """
+                                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 0H2.3949L4.84076 2.44586L0 7.28662L0.713376 8L5.55414 3.15924L8 5.6051V0Z" fill="black"/>
+                                    </svg>
+                                """.trimIndent()
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
     open fun buildHtml(page: PageNode, resources: List<String>, content: FlowContent.() -> Unit) =
         createHTML().html {
             head {
                 meta(name = "viewport", content = "width=device-width, initial-scale=1", charset = "UTF-8")
                 title(page.name)
                 link(href = page.root("images/logo-icon.svg"), rel = "icon", type = "image/svg")
-                resources.forEach {
-                    when {
-                        it.substringBefore('?').substringAfterLast('.') == "css" -> link(
-                            rel = LinkRel.stylesheet,
-                            href = resolveLink(it, page)
-                        )
-                        it.substringBefore('?').substringAfterLast('.') == "js" -> script(
-                            type = ScriptType.textJavaScript,
-                            src = resolveLink(it, page)
-                        ) {
-                            async = true
-                        }
-                        else -> unsafe { +it }
-                    }
-                }
+                buildResources(resources, page)
                 script { unsafe { +"""var pathToRoot = "${locationProvider.pathToRoot(page)}";""" } }
             }
             body {
                 div {
                     id = "container"
-                    div {
-                        id = "leftColumn"
-                        div {
-                            id = "logo"
-                        }
-                        if (page !is MultimoduleRootPage) {
-                            div {
-                                id = "paneSearch"
-                            }
-                        }
-                        div {
-                            id = "sideMenu"
-                        }
-                    }
+                    buildLeftColumn(page)
                     div {
                         id = "main"
-                        div {
-                            id = "searchBar"
-                        }
-                        script(type = ScriptType.textJavaScript, src = page.root("scripts/pages.js")) {}
-                        script(type = ScriptType.textJavaScript, src = page.root("scripts/main.js")) {}
+                        buildSearchBar(page)
                         content()
-                        div(classes = "footer") {
-                            span("go-to-top-icon") {
-                                a(href = "#container") {
-                                    unsafe {
-                                        raw(
-                                            """
-                                    <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M11.3337 9.66683H0.666992L6.00033 3.66683L11.3337 9.66683Z" fill="black"/>
-                                        <path d="M0.666992 0.333496H11.3337V1.66683H0.666992V0.333496Z" fill="black"/>
-                                    </svg>
-                                """.trimIndent()
-                                        )
-                                    }
-                                }
-                            }
-                            span { text("© 2020 Copyright") }
-                            span("pull-right") {
-                                span { text("Sponsored and developed by dokka") }
-                                a(href = "https://github.com/Kotlin/dokka") {
-                                    span(classes = "padded-icon") {
-                                        unsafe {
-                                            raw(
-                                                """
-                                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M8 0H2.3949L4.84076 2.44586L0 7.28662L0.713376 8L5.55414 3.15924L8 5.6051V0Z" fill="black"/>
-                                    </svg>
-                                """.trimIndent()
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        buildFooter(page)
                     }
                 }
             }

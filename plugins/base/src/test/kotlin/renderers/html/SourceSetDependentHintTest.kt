@@ -2,6 +2,7 @@ package renderers.html
 
 import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
+import org.jetbrains.dokka.base.renderers.html.HtmlRendererFactory
 import org.jetbrains.dokka.pages.TextStyle
 import org.junit.jupiter.api.Test
 import renderers.testPage
@@ -41,7 +42,7 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
         renderedContent.match(Div(Div(Div("abc"))))
     }
 
@@ -55,7 +56,7 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
         renderedContent.match(Div(Div(Div("a")), Div(Div("b")), Div(Div("c"))))
     }
 
@@ -69,7 +70,7 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
         renderedContent.match(Div(Div(Div("ab")), Div(Div("bc"))))
     }
 
@@ -83,7 +84,7 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
         renderedContent.match(Div(Div(Div("ab"))))
     }
 
@@ -99,7 +100,7 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
         renderedContent.match(Div(Div(Div(Div("ab"))), Div(Div(Div("a"), "b"))))
     }
 
@@ -115,7 +116,7 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
         renderedContent.match(Div(Div("ab")))
     }
 
@@ -129,7 +130,7 @@ class SourceSetDependentHintTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
         renderedContent.match(Div(Div(Div("a")), Div(Div("b"))))
     }
 }

@@ -14,19 +14,29 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.querySingle
 import org.jetbrains.dokka.renderers.Renderer
+import org.jetbrains.dokka.renderers.RendererFactory
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 import java.io.File
 
+abstract class DefaultRendererFactory(val context: DokkaContext): RendererFactory {
+    protected open val preprocessors: Iterable<PageTransformer> = emptyList()
+
+    protected abstract fun createRender(locationProvider: LocationProvider, root: RootPageNode): Renderer
+
+    override fun createRenderer(root: RootPageNode): Renderer {
+        val newRoot = preprocessors.fold(root) { acc, t -> t(acc) }
+        val locationProvider = context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
+        return createRender(locationProvider, newRoot)
+    }
+}
+
 abstract class DefaultRenderer<T>(
-    protected val context: DokkaContext
+    protected val context: DokkaContext,
+    protected val locationProvider: LocationProvider,
+    protected val root: RootPageNode
 ) : Renderer {
 
     protected val outputWriter = context.plugin<DokkaBase>().querySingle { outputWriter }
-
-    protected lateinit var locationProvider: LocationProvider
-        private set
-
-    protected open val preprocessors: Iterable<PageTransformer> = emptyList()
 
     abstract fun T.buildHeader(level: Int, node: ContentHeader, content: T.() -> Unit)
     abstract fun T.buildLink(address: String, content: T.() -> Unit)
@@ -191,14 +201,9 @@ abstract class DefaultRenderer<T>(
         }
     }
 
-    override fun render(root: RootPageNode) {
-        val newRoot = preprocessors.fold(root) { acc, t -> t(acc) }
-
-        locationProvider =
-            context.plugin<DokkaBase>().querySingle { locationProviderFactory }.getLocationProvider(newRoot)
-
+    override fun render() {
         runBlocking(Dispatchers.Default) {
-            renderPages(newRoot)
+            renderPages(root)
         }
     }
 

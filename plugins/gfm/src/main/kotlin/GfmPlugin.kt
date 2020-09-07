@@ -4,11 +4,9 @@ import org.jetbrains.dokka.CoreExtensions
 import org.jetbrains.dokka.DokkaConfiguration.DokkaSourceSet
 import org.jetbrains.dokka.DokkaException
 import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.renderers.DefaultRenderer
-import org.jetbrains.dokka.base.renderers.PackageListCreator
-import org.jetbrains.dokka.base.renderers.RootCreator
-import org.jetbrains.dokka.base.renderers.isImage
+import org.jetbrains.dokka.base.renderers.*
 import org.jetbrains.dokka.base.resolvers.local.DokkaLocationProvider
+import org.jetbrains.dokka.base.resolvers.local.LocationProvider
 import org.jetbrains.dokka.base.resolvers.local.LocationProviderFactory
 import org.jetbrains.dokka.model.DisplaySourceSet
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
@@ -17,6 +15,7 @@ import org.jetbrains.dokka.plugability.DokkaContext
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.plugin
 import org.jetbrains.dokka.plugability.query
+import org.jetbrains.dokka.renderers.Renderer
 import org.jetbrains.dokka.transformers.pages.PageTransformer
 
 class GfmPlugin : DokkaPlugin() {
@@ -27,7 +26,7 @@ class GfmPlugin : DokkaPlugin() {
 
     val renderer by extending {
         (CoreExtensions.renderer
-                providing { CommonmarkRenderer(it) }
+                providing { CommonmarkRendererFactory(it) }
                 override dokkaBase.htmlRenderer)
     }
 
@@ -48,11 +47,18 @@ class GfmPlugin : DokkaPlugin() {
     }
 }
 
-open class CommonmarkRenderer(
-    context: DokkaContext
-) : DefaultRenderer<StringBuilder>(context) {
+class CommonmarkRendererFactory(context: DokkaContext): DefaultRendererFactory(context) {
+    override fun createRender(locationProvider: LocationProvider, root: RootPageNode): Renderer =
+            CommonmarkRenderer(context, locationProvider, root)
 
     override val preprocessors = context.plugin<GfmPlugin>().query { gfmPreprocessors }
+}
+
+open class CommonmarkRenderer(
+    context: DokkaContext,
+    locationProvider: LocationProvider,
+    root: RootPageNode
+) : DefaultRenderer<StringBuilder>(context, locationProvider, root) {
 
     override fun StringBuilder.wrapGroup(
         node: ContentGroup,

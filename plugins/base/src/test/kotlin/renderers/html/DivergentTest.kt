@@ -1,6 +1,6 @@
 package renderers.html
 
-import org.jetbrains.dokka.base.renderers.html.HtmlRenderer
+import org.jetbrains.dokka.base.renderers.html.HtmlRendererFactory
 import org.jetbrains.dokka.links.DRI
 import org.jetbrains.dokka.pages.ContentDivergentGroup
 import org.junit.jupiter.api.Test
@@ -22,7 +22,7 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
         renderedContent.match(Div(Div(Div(Div("a")))))
     }
 
@@ -37,7 +37,8 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
                 }
             }
         }
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
+
         renderedContent.match(Div(Div("a")))
     }
 
@@ -63,7 +64,8 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
+
         renderedContent.match(Div(Div(Div(Div("a"), Div("b"), Div("c")))))
     }
 
@@ -89,7 +91,8 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
+
         renderedContent.match(Div(Div((Div(Div("abc"))))))
     }
 
@@ -125,7 +128,8 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
+
         renderedContent.match(Div(Div(Div(Div("ae"), Div("bd"), Div("c")))))
     }
 
@@ -173,7 +177,8 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
+
         renderedContent.match(
             Div(Div(Span(Div(Div("NATIVE")))), Div(Div(Div("a"))), "a+"),
             Div(Div(Span(Div(Div("JS")))), Div(Div(Div("bd"))), "bd+"),
@@ -205,7 +210,8 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
+
         renderedContent.match(
             Div(
                 Div(
@@ -240,7 +246,8 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
+
         renderedContent.match(
             Div(
                 Div(Div(Div("ab"))),
@@ -278,7 +285,8 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
+
         renderedContent.match(
             Div(
                 Div(Div("ab-"), Span()),
@@ -317,7 +325,8 @@ class DivergentTest : HtmlRenderingOnlyTestBase() {
             }
         }
 
-        HtmlRenderer(context).render(page)
+        HtmlRendererFactory(context).createRenderer(page).render()
+
         renderedContent.match(
             Div(Div(Div("a-"), Span()), Div(Div(Div("a"))), "ab+"),
             Div(Div(Div("b-"), Span()), Div(Div(Div(("b")))), "ab+")

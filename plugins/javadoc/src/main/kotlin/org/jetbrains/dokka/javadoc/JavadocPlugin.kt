@@ -9,6 +9,7 @@ import org.jetbrains.dokka.base.renderers.PackageListCreator
 import org.jetbrains.dokka.base.renderers.RootCreator
 import org.jetbrains.dokka.base.resolvers.shared.RecognizedLinkFormat
 import org.jetbrains.dokka.javadoc.pages.*
+import org.jetbrains.dokka.javadoc.renderer.KorteJavadocRendererFactory
 import org.jetbrains.dokka.kotlinAsJava.KotlinAsJavaPlugin
 import org.jetbrains.dokka.plugability.DokkaPlugin
 import org.jetbrains.dokka.plugability.querySingle
@@ -23,7 +24,7 @@ class JavadocPlugin : DokkaPlugin() {
 
     val dokkaJavadocPlugin by extending {
         (CoreExtensions.renderer
-                providing { ctx -> KorteJavadocRenderer(dokkaBasePlugin.querySingle { outputWriter }, ctx, "views") }
+                providing { ctx -> KorteJavadocRendererFactory(ctx, "views") }
                 override dokkaBasePlugin.htmlRenderer)
     }
 
